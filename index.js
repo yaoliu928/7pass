@@ -67,4 +67,17 @@ exports.setDefaults = (objWithDefaultProp) => {
   };
 
 };
-exports.fetchUserByNameAndUsersCompany = () => { };
+exports.fetchUserByNameAndUsersCompany = (searchValue, services) => new Promise(
+  resolve => {
+    const searchResult = {};
+    Promise.all([services.fetchUsers(), services.fetchStatus()]).then(value => {
+      searchResult.status = value[1];
+      userIndex = value[0].findIndex(user => user.name === searchValue);
+      searchResult.user = value[0][userIndex];
+      return services.fetchCompanyById(searchResult.user.companyId)
+    }).then(res => {
+      searchResult.company = res;
+      resolve(searchResult);
+    });
+  }
+) 
